@@ -8,57 +8,83 @@ Dự án xây dựng hệ thống quản lý và bán hàng thiết bị ngành 
 ## Phần 1: Mô hình hóa quy trình (Business Flow)
 
 ### 1.1. Sơ đồ Use Case (Use Case Diagram)
-graph TD
-    Customer((Khách hàng))
-    Admin((Admin/PIM))
-    Warehouse((Nhân viên Kho))
-    Accountant((Kế toán))
 
-    subgraph "Hệ thống Kochi Lens"
-        UC1(Xem sản phẩm & Biến thể)
-        UC2(Đặt hàng & Thanh toán)
-        UC3(Quản lý danh mục PIM)
-        UC4(Cập nhật tồn kho Real-time)
-        UC5(Xử lý đóng gói Delivery)
-        UC6(Xuất hóa đơn Invoice)
-    end
-
-    Customer --> UC1
-    Customer --> UC2
-    Admin --> UC3
-    Admin --> UC4
-    Warehouse --> UC4
-    Warehouse --> UC5
-    Accountant --> UC6
 Các tác nhân chính tương tác với hệ thống quản lý sản phẩm và đơn hàng:
+```mermaid
+usecaseDiagram
+    actor "Khách hàng" as c
+    actor "Admin/PIM Manager" as a
+    actor "Nhân viên Kho" as w
+    actor "Kế toán" as ac
 
-* **Customer (Khách hàng):** Xem sản phẩm, quản lý giỏ hàng, thanh toán trực tuyến.
-* **Admin/PIM Manager:** Thiết lập thông tin sản phẩm, quản lý biến thể (màu sắc, ngàm ống kính).
-* **Warehouse Staff (Nhân viên kho):** Theo dõi tồn kho thực tế, xử lý đóng gói (Delivery).
-* **Accountant (Kế toán):** Kiểm tra dòng tiền thanh toán, xuất hóa đơn (Invoice).
+    package "Hệ thống Kochi Lens" {
+        usecase "Xem sản phẩm & Biến thể" as UC_View
+        usecase "Quản lý Giỏ hàng" as UC_Cart
+        usecase "Thanh toán (VNPay/Momo)" as UC_Pay
+        
+        usecase "Thiết lập Sản phẩm & PIM" as UC_Manage_PIM
+        usecase "Cập nhật tồn kho Real-time" as UC_Stock
+        
+        usecase "Xác nhận & Đóng gói (Delivery)" as UC_Process
+        usecase "Xuất hóa đơn (Invoice)" as UC_Invoice
+    }
+
+    c -- UC_View
+    c -- UC_Cart
+    c -- UC_Pay
+    
+    a -- UC_Manage_PIM
+    a -- UC_Stock
+    
+    w -- UC_Process
+    w -- UC_Stock
+    
+    ac -- UC_Invoice
+```
+
 
 ### 1.2. Sơ đồ Activity (Activity Diagram)
-sequenceDiagram
-    participant C as Khách hàng
-    participant S as Hệ thống (PIM/Web)
-    participant P as Cổng thanh toán
-    participant W as Kho/Kế toán
-
-    C->>S: Chọn sản phẩm (Màu sắc/Ngàm)
-    S->>S: Kiểm tra tồn kho Real-time
-    C->>S: Thêm vào giỏ hàng & Checkout
-    S->>P: Yêu cầu thanh toán (VNPay/Momo)
-    P-->>C: Hiển thị QR Code/Nhập OTP
-    alt Thanh toán thành công
-        P->>S: Trả kết quả Success
-        S->>S: Chuyển trạng thái Sale Order
-        S->>W: Đẩy dữ liệu về Kho & Kế toán
-        S-->>C: Gửi Email xác nhận đơn hàng
-    else Thanh toán thất bại
-        P->>S: Trả kết quả Fail
-        S-->>C: Thông báo lỗi & Yêu cầu thử lại
-    end
 Luồng nghiệp vụ từ khi khách hàng chọn hàng đến khi đơn hàng hoàn tất:
+```mermaid
+stateDiagram-v2
+    [*] --> DuyetWebsite
+    
+    state DuyetWebsite {
+        [*] --> ChonSanPham
+        ChonSanPham --> ChonBienThe : Màu sắc, Ngàm...
+    }
+    
+    DuyetWebsite --> KiemTraTonKho : Hệ thống check PIM
+    
+    state KiemTraTonKho {
+        [*] --> CheckStock
+        CheckStock --> ConHang : stock_qty > 0
+        CheckStock --> HetHang : stock_qty == 0
+    }
+    
+    HetHang --> DuyetWebsite : Chọn sản phẩm khác
+    
+    ConHang --> Checkout : Nhập thông tin & Phí ship
+    Checkout --> Thanh Toan : VNPay/Momo
+    
+    state CheckPayment <<choice>>
+    Thanh Toan --> CheckPayment
+    
+    CheckPayment --> ThanhToanLoi : Thất bại
+    ThanhToanLoi --> Thanh Toan : Thử lại
+    
+    CheckPayment --> TaoSaleOrder : Thành công
+    
+    state QuyTrinhBackend {
+        direction LR
+        [*] --> KhoXuly : Lệnh Delivery
+        KhoXuly --> KeToanXuLy : Lệnh Invoice
+    }
+    
+    TaoSaleOrder --> QuyTrinhBackend
+    QuyTrinhBackend --> DonHangHoanTat
+    DonHangHoanTat --> [*]
+```
 
 1.  **Bắt đầu:** Khách hàng truy cập website và chọn thiết bị ảnh.
 2.  **Kiểm tra tồn kho:** Hệ thống truy xuất dữ liệu từ PIM (Quản lý sản phẩm) để hiển thị trạng thái Real-time.
