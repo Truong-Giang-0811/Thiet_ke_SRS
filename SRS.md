@@ -11,33 +11,44 @@ Dự án xây dựng hệ thống quản lý và bán hàng thiết bị ngành 
 
 Các tác nhân chính tương tác với hệ thống quản lý sản phẩm và đơn hàng:
 ```mermaid
-usecaseDiagram
-    actor "Khách hàng" as Customer
-    actor "Admin/PIM Manager" as Admin
-    actor "Nhân viên Kho" as Warehouse
-    actor "Kế toán" as Accountant
+graph TD
+    %% Định nghĩa các Actor với hình khối khác biệt
+    Customer((Khách hàng))
+    Admin((Admin/PIM Manager))
+    Warehouse((Nhân viên Kho))
+    Accountant((Kế toán))
 
-    package "Hệ thống Kochi Lens" {
-        usecase "Xem sản phẩm & Biến thể" as UC1
-        usecase "Quản lý Giỏ hàng" as UC2
-        usecase "Thanh toán (VNPay/Momo)" as UC3
-        usecase "Thiết lập Sản phẩm (PIM)" as UC4
-        usecase "Cập nhật tồn kho Real-time" as UC5
-        usecase "Xác nhận đóng gói (Delivery)" as UC6
-        usecase "Xuất hóa đơn (Invoice)" as UC7
-    }
+    subgraph Hệ thống Kochi Lens
+        UC1(Xem sản phẩm & Biến thể)
+        UC2(Quản lý Giỏ hàng)
+        UC3(Thanh toán VNPay/Momo)
+        UC4(Thiết lập Sản phẩm PIM)
+        UC5(Cập nhật tồn kho Real-time)
+        UC6(Xác nhận đóng gói Delivery)
+        UC7(Xuất hóa đơn Invoice)
+    end
 
-    Customer --> UC1
-    Customer --> UC2
-    Customer --> UC3
-    
-    Admin --> UC4
-    Admin --> UC5
-    
-    Warehouse --> UC5
-    Warehouse --> UC6
-    
-    Accountant --> UC7
+    %% Kết nối Customer
+    Customer --- UC1
+    Customer --- UC2
+    Customer --- UC3
+
+    %% Kết nối Admin
+    Admin --- UC4
+    Admin --- UC5
+
+    %% Kết nối Warehouse
+    Warehouse --- UC5
+    Warehouse --- UC6
+
+    %% Kết nối Accountant
+    Accountant --- UC7
+
+    %% Định dạng màu sắc cho dễ nhìn (Tùy chọn)
+    style Customer fill:#f9f,stroke:#333,stroke-width:2px
+    style Admin fill:#bbf,stroke:#333,stroke-width:2px
+    style Warehouse fill:#bfb,stroke:#333,stroke-width:2px
+    style Accountant fill:#fbb,stroke:#333,stroke-width:2px
 ```
 
 
