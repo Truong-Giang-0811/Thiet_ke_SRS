@@ -8,6 +8,28 @@ Dự án xây dựng hệ thống quản lý và bán hàng thiết bị ngành 
 ## Phần 1: Mô hình hóa quy trình (Business Flow)
 
 ### 1.1. Sơ đồ Use Case (Use Case Diagram)
+graph TD
+    Customer((Khách hàng))
+    Admin((Admin/PIM))
+    Warehouse((Nhân viên Kho))
+    Accountant((Kế toán))
+
+    subgraph "Hệ thống Kochi Lens"
+        UC1(Xem sản phẩm & Biến thể)
+        UC2(Đặt hàng & Thanh toán)
+        UC3(Quản lý danh mục PIM)
+        UC4(Cập nhật tồn kho Real-time)
+        UC5(Xử lý đóng gói Delivery)
+        UC6(Xuất hóa đơn Invoice)
+    end
+
+    Customer --> UC1
+    Customer --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Warehouse --> UC4
+    Warehouse --> UC5
+    Accountant --> UC6
 Các tác nhân chính tương tác với hệ thống quản lý sản phẩm và đơn hàng:
 
 * **Customer (Khách hàng):** Xem sản phẩm, quản lý giỏ hàng, thanh toán trực tuyến.
@@ -16,6 +38,26 @@ Các tác nhân chính tương tác với hệ thống quản lý sản phẩm v
 * **Accountant (Kế toán):** Kiểm tra dòng tiền thanh toán, xuất hóa đơn (Invoice).
 
 ### 1.2. Sơ đồ Activity (Activity Diagram)
+sequenceDiagram
+    participant C as Khách hàng
+    participant S as Hệ thống (PIM/Web)
+    participant P as Cổng thanh toán
+    participant W as Kho/Kế toán
+
+    C->>S: Chọn sản phẩm (Màu sắc/Ngàm)
+    S->>S: Kiểm tra tồn kho Real-time
+    C->>S: Thêm vào giỏ hàng & Checkout
+    S->>P: Yêu cầu thanh toán (VNPay/Momo)
+    P-->>C: Hiển thị QR Code/Nhập OTP
+    alt Thanh toán thành công
+        P->>S: Trả kết quả Success
+        S->>S: Chuyển trạng thái Sale Order
+        S->>W: Đẩy dữ liệu về Kho & Kế toán
+        S-->>C: Gửi Email xác nhận đơn hàng
+    else Thanh toán thất bại
+        P->>S: Trả kết quả Fail
+        S-->>C: Thông báo lỗi & Yêu cầu thử lại
+    end
 Luồng nghiệp vụ từ khi khách hàng chọn hàng đến khi đơn hàng hoàn tất:
 
 1.  **Bắt đầu:** Khách hàng truy cập website và chọn thiết bị ảnh.
