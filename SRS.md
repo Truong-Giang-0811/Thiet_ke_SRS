@@ -12,34 +12,32 @@ Dự án xây dựng hệ thống quản lý và bán hàng thiết bị ngành 
 Các tác nhân chính tương tác với hệ thống quản lý sản phẩm và đơn hàng:
 ```mermaid
 usecaseDiagram
-    actor "Khách hàng" as c
-    actor "Admin/PIM Manager" as a
-    actor "Nhân viên Kho" as w
-    actor "Kế toán" as ac
+    actor "Khách hàng" as Customer
+    actor "Admin/PIM Manager" as Admin
+    actor "Nhân viên Kho" as Warehouse
+    actor "Kế toán" as Accountant
 
     package "Hệ thống Kochi Lens" {
-        usecase "Xem sản phẩm & Biến thể" as UC_View
-        usecase "Quản lý Giỏ hàng" as UC_Cart
-        usecase "Thanh toán (VNPay/Momo)" as UC_Pay
-        
-        usecase "Thiết lập Sản phẩm & PIM" as UC_Manage_PIM
-        usecase "Cập nhật tồn kho Real-time" as UC_Stock
-        
-        usecase "Xác nhận & Đóng gói (Delivery)" as UC_Process
-        usecase "Xuất hóa đơn (Invoice)" as UC_Invoice
+        usecase "Xem sản phẩm & Biến thể" as UC1
+        usecase "Quản lý Giỏ hàng" as UC2
+        usecase "Thanh toán (VNPay/Momo)" as UC3
+        usecase "Thiết lập Sản phẩm (PIM)" as UC4
+        usecase "Cập nhật tồn kho Real-time" as UC5
+        usecase "Xác nhận đóng gói (Delivery)" as UC6
+        usecase "Xuất hóa đơn (Invoice)" as UC7
     }
 
-    c -- UC_View
-    c -- UC_Cart
-    c -- UC_Pay
+    Customer --> UC1
+    Customer --> UC2
+    Customer --> UC3
     
-    a -- UC_Manage_PIM
-    a -- UC_Stock
+    Admin --> UC4
+    Admin --> UC5
     
-    w -- UC_Process
-    w -- UC_Stock
+    Warehouse --> UC5
+    Warehouse --> UC6
     
-    ac -- UC_Invoice
+    Accountant --> UC7
 ```
 
 
